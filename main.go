@@ -1196,7 +1196,7 @@ func initializeSections() ([]section) {
 					Cyan, Reset, Green, Reset, // go build ./cmd/app
 					Cyan, Reset, Green, Reset, // go run main.go
 					Cyan, Reset, Green, Reset, // go install github.com/project/cmd/app
-					Cyan, Reset, Green, Reset, // GOOS=linux GOARCH=amd64 go build
+					Cyan, Reset, // GOOS=linux GOARCH=amd64 go build
 				)},
 				{name: "MultiModule", content: fmt.Sprintf(
 					("%sLocal Modules%s:\n\n"+

@@ -121,7 +121,7 @@ func listSections(sections []section) (string) {
 	for _, sec := range sections {
 		output += fmt.Sprintf(" - %s%s%s %s%s%s\n", 
 			BoldUnderline, sec.name, Reset, // section name
-			Yellow, sec.short, Reset, // short name
+			Italic, sec.short, Reset, // short name
 		)
 		listed := 0
 		for _, sub := range sec.subsections {

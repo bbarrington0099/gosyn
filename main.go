@@ -32,6 +32,7 @@ type command struct {
 
 type section struct {
 	name string
+	short string
 	subsections []subsection
 }
 
@@ -118,9 +119,21 @@ func listActions() string {
 func listSections(sections []section) (string) {
 	output := fmt.Sprintf("%sSections%s:\n", BoldItalic, Reset)
 	for _, sec := range sections {
-		output += fmt.Sprintf(" - %s%s%s\n", BoldUnderline, sec.name, Reset)
+		output += fmt.Sprintf(" - %s%s%s %s%s%s\n", 
+			BoldUnderline, sec.name, Reset, // section name
+			Yellow, sec.short, Reset, // short name
+		)
+		listed := 0
 		for _, sub := range sec.subsections {
-			output += fmt.Sprintf("   - %s%s%s\n", Yellow, sub.name, Reset)
+			if listed == 3 {
+				output += "\n"
+				listed = 0
+			}
+			output += fmt.Sprintf("   - %s%s%s", Yellow, sub.name, Reset)
+			listed++
+		}
+		if listed > 0 {
+			output += "\n"
 		}
 	}
 	return output
@@ -128,11 +141,11 @@ func listSections(sections []section) (string) {
 
 func listSubsections(sections []section, sectionName string) (string, error) {
 	var err error = nil
-	output := fmt.Sprintf("%sSubsections%s in %s%s%s:\n", 
-	BoldYellow, Reset, // Subsections
-	BoldGreen, sectionName, Reset) // sectionName
 	for _, sec := range sections {
-		if sec.name == sectionName {
+		if strings.EqualFold(sec.name, sectionName) || strings.EqualFold(sec.short, sectionName) {
+			output := fmt.Sprintf("%sSubsections%s in %s%s%s:\n", 
+			BoldYellow, Reset, // Subsections
+			BoldGreen, sec.name, Reset) // sectionName
 			for _, sub := range sec.subsections {
 				output += fmt.Sprintf("   - %s\n", sub.name)
 			}
@@ -146,13 +159,13 @@ func listSubsections(sections []section, sectionName string) (string, error) {
 func tax(sections []section, sectionName string, subsectionName string) (string, error) {
 	var err error = nil
 	for _, sec := range sections {
-		if strings.EqualFold(sec.name, sectionName) {
+		if strings.EqualFold(sec.name, sectionName) || strings.EqualFold(sec.short, sectionName) {
 			for _, sub := range sec.subsections {
 				if strings.EqualFold(sub.name, subsectionName) {
-					return fmt.Sprintf("%sSyntax information%s for %s%s%s in %s%s%s: %s\n", 
+					return fmt.Sprintf("%sSyntax information%s for %s%s%s in %s%s%s:\n%s\n", 
 					BoldPurple, Reset, // Syntax information
-					Yellow, subsectionName, Reset, // subsectionName
-					Green, sectionName, Reset, // sectionName
+					Yellow, sub.name, Reset, // subsectionName
+					Green, sec.name, Reset, // sectionName
 					sub.content), err
 				}
 			}
@@ -176,6 +189,7 @@ func initializeSections() ([]section) {
 	sections := []section{
 		{
 			name: "Variables",
+			short: "var",
 			subsections: []subsection{
 				{name: "Declaration", content: fmt.Sprintf(
 					("%sVariable Declaration%s:\n\n" +
@@ -218,6 +232,7 @@ func initializeSections() ([]section) {
 		},
 		{
 			name: "Conditionals",
+			short: "cond",
 			subsections: []subsection{
 				{name: "If", content: fmt.Sprintf(
 					("%sIf Statement%s:\n\n" +
@@ -317,6 +332,7 @@ func initializeSections() ([]section) {
 		},
 		{
 			name: "Loops",
+			short: "loop",
 			subsections: []subsection{
 				{name: "For", content: fmt.Sprintf(
 					("%sFor Loop (Standard)%s:\n\n" +
@@ -433,6 +449,7 @@ func initializeSections() ([]section) {
 		},
 		{
 			name: "Functions",
+			short: "func",
 			subsections: []subsection{
 				{name: "Declaration", content: fmt.Sprintf(
 					"%sFunction Declaration%s:\n\n"+
@@ -482,6 +499,7 @@ func initializeSections() ([]section) {
 		},
 		{
 			name: "DataStructures",
+			short: "ds",
 			subsections: []subsection{
 				{name: "Slices", content: fmt.Sprintf(
 					("%sSlices%s:\n\n" +
@@ -764,6 +782,7 @@ func initializeSections() ([]section) {
 		},
 		{
 			name: "Channels",
+			short: "chan",
 			subsections: []subsection{
 				{name: "Buffered", content: fmt.Sprintf(
 					("%sBuffered Channels%s:\n\n"+
@@ -825,6 +844,7 @@ func initializeSections() ([]section) {
 		},
 		{
 			name: "Goroutines",
+			short: "goroutine",
 			subsections: []subsection{
 				{name: "Basic", content: fmt.Sprintf(
 					("%sStarting Goroutines%s:\n\n"+
@@ -871,6 +891,7 @@ func initializeSections() ([]section) {
 		},
 		{
 			name: "Concurrency",
+			short: "concurrent",
 			subsections: []subsection{
 				{name: "Mutex", content: fmt.Sprintf(
 					"%sMutex Usage%s:\n\n"+
@@ -902,6 +923,7 @@ func initializeSections() ([]section) {
 		},
 		{
 			name: "Pointers",
+			short: "ptr",
 			subsections: []subsection{
 				{name: "Basics", content: fmt.Sprintf(
 					("%sPointer Basics%s:\n\n"+
@@ -944,6 +966,7 @@ func initializeSections() ([]section) {
 		},
 		{
 			name: "ErrorHandling",
+			short: "err",
 			subsections: []subsection{
 				{name: "Basic", content: fmt.Sprintf(
 					("%sBasic Error Handling%s:\n\n"+
@@ -995,6 +1018,7 @@ func initializeSections() ([]section) {
 		},
 		{
 			name: "Testing",
+			short: "test",
 			subsections: []subsection{
 				{name: "UnitTests", content: fmt.Sprintf(
 					"%sUnit Test%s:\n\n"+
@@ -1027,6 +1051,7 @@ func initializeSections() ([]section) {
 		},
 		{
 			name: "StringManipulation",
+			short: "str",
 			subsections: []subsection{
 				{name: "Basic", content: fmt.Sprintf(
 					("%sBasic Operations%s:\n\n"+
@@ -1062,6 +1087,7 @@ func initializeSections() ([]section) {
 		},
 		{
 			name: "PrintFormatting",
+			short: "fmt",
 			subsections: []subsection{
 				{name: "PrintFunctions", content: fmt.Sprintf(
 					("%sPrint Functions%s:\n\n"+
@@ -1101,6 +1127,7 @@ func initializeSections() ([]section) {
 		},
 		{
 			name: "FileIO",
+			short: "file",
 			subsections: []subsection{
 				{name: "ReadWrite", content: fmt.Sprintf(
 					"%sRead/Write Files%s:\n\n"+
@@ -1116,6 +1143,7 @@ func initializeSections() ([]section) {
 		},
 		{
 			name: "Time",
+			short: "time",
 			subsections: []subsection{
 				{name: "Formatting", content: fmt.Sprintf(
 					"%sTime Formatting%s:\n\n"+
@@ -1129,6 +1157,7 @@ func initializeSections() ([]section) {
 		},
 		{
 			name: "HTTPServer",
+			short: "http",
 			subsections: []subsection{
 				{name: "BasicServer", content: fmt.Sprintf(
 					"%sBasic Server%s:\n\n"+
@@ -1146,6 +1175,7 @@ func initializeSections() ([]section) {
 		},
 		{
 			name: "PackageManagement",
+			short: "pkg",
 			subsections: []subsection{
 				{name: "GoMod", content: fmt.Sprintf(
 					("%sgo.mod Example%s:\n\n"+
@@ -1185,6 +1215,7 @@ func initializeSections() ([]section) {
 		},
 		{
 			name: "BuildRun",
+			short: "build",
 			subsections: []subsection{
 				{name: "Commands", content: fmt.Sprintf(
 					("%sBuild Commands%s:\n\n"+
@@ -1214,6 +1245,7 @@ func initializeSections() ([]section) {
 		},
 		{
 			name: "Reflection",
+			short: "reflect",
 			subsections: []subsection{
 				{name: "Basic", content: fmt.Sprintf(
 					("%sBasic Reflection%s:\n\n"+
@@ -1244,6 +1276,7 @@ func initializeSections() ([]section) {
 		},
 		{
 			name: "ImportsVisibility",
+			short: "imp",
 			subsections: []subsection{
 				{name: "Imports", content: fmt.Sprintf(
 					("%sImport Statements%s:\n\n"+
@@ -1275,6 +1308,7 @@ func initializeSections() ([]section) {
 		},
 		{
 			name: "Generics",
+			short: "gen",
 			subsections: []subsection{
 				{name: "Basic", content: fmt.Sprintf(
 					("%sGeneric Function%s:\n\n"+

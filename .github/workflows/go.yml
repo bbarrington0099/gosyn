@@ -28,10 +28,11 @@ jobs:
           go test -v -race -coverprofile=coverage.txt -covermode=atomic ./.
           go tool cover -func=coverage.txt
       
-      - name: Upload Coverage
-        uses: codecov/codecov-action@v3
+      - name: Upload Coverage to CodeCov
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          slug: 'bbarrington0099/gosyn'
       
       - name: Lint
         run: |

@@ -1,10 +1,10 @@
 package main
 
 import (
-	"strings"
 	"fmt"
 	"log"
 	"os"
+	"strings"
 )
 
 const (
@@ -41,24 +41,35 @@ type subsection struct {
 	content string
 }
 
+var (
+	initializeSectionsFn = initializeSections
+)
+
 func parseCommand() (command, error) {
 	var err error = nil
 	var cmd command
 	if len(os.Args) < 2 {
-		err = fmt.Errorf("%sERROR%s parseCommand(): no command provided", BoldRed, Reset)
+		err = fmt.Errorf("%sERROR%s parseCommand(): no command provided. use \"%sgosyn help%s\"", 
+		BoldRed, Reset, // ERROR
+		BoldItalic, Reset, // gosyn help
+	)
 		return cmd, err
 	}
-	if len(os.Args) < 3 {
-		cmd = command{
-			action: os.Args[1],
-			args: []string{""},
-		}
-	} else {
-		cmd = command{
-			action: os.Args[1],
-			args: os.Args[2:],
+	cmd = command{
+		action: os.Args[1],
+		args:   []string{""},
+	}
+
+	if len(os.Args) > 2 {
+		cmd.args = os.Args[2:]
+		for i := 0; i < len(cmd.args); i++ {
+			if cmd.args[i] == "" {
+				cmd.args = append(cmd.args[:i], cmd.args[i+1:]...)
+				i--
+			}
 		}
 	}
+
 	return cmd, err
 }
 
@@ -68,27 +79,38 @@ func executeCommand() (string, error) {
 	if parseErr != nil {
 		return "", parseErr	
 	}
-	sections := initializeSections()
+	sections := initializeSectionsFn()
 
 	switch strings.ToLower(cmd.action) {
 	case "h":
 		fallthrough
 	case "help":
+		if cmd.args[0] != "" {
+			fmt.Printf("%sWARNING%s executeCommand(): too many arguments provided for help command, following Args ignored:\n%v\n", BoldPurple, Reset, cmd.args)
+		}
 		return listActions(), nil
 	case "lsec":
 		fallthrough
-	case "listSections":
+	case "listsections":
+		if cmd.args[0] != "" {
+			fmt.Printf("%sWARNING%s executeCommand(): too many arguments provided for listSections command, following Args ignored:\n%v\n", BoldPurple, Reset, cmd.args)
+		}
 		return listSections(sections), nil
 	case "lsub":
 		fallthrough
-	case "listSubsections":
+	case "listsubsections":
 		if cmd.args[0] == "" {
 			err = fmt.Errorf("%sERROR%s executeCommand(): no section name provided for listSubsections <sectionName>", BoldRed, Reset)
 			return "", err
 		}
+		if len(cmd.args) > 1 {
+			fmt.Printf("%sWARNING%s executeCommand(): too many arguments provided for listSubsections command, following Args ignored:\n%v\n", BoldPurple, Reset, cmd.args[1:])
+		}
 		return listSubsections(sections, cmd.args[0])
 	default:
-		if len(cmd.args) < 1 {
+		// Default represents if there is no "action" just a section and subsection arg (the section being the cmd.action)
+		// This is the default funcitonality of the program
+		if cmd.args[0] == "" {
 			err = fmt.Errorf("%sERROR%s executeCommand(): no subsection name provided for tax <sectionName> <subsectionName> in args \"%v\"", BoldRed, Reset, os.Args[1:])
 			return "", err
 		}

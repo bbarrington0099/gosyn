@@ -88,14 +88,14 @@ func executeCommand() (string, error) {
 		if cmd.args[0] != "" {
 			fmt.Printf("%sWARNING%s executeCommand(): too many arguments provided for help command, following Args ignored:\n%v\n", BoldPurple, Reset, cmd.args)
 		}
-		return listActions(), nil
+		return listActions(), err
 	case "lsec":
 		fallthrough
 	case "listsections":
 		if cmd.args[0] != "" {
 			fmt.Printf("%sWARNING%s executeCommand(): too many arguments provided for listSections command, following Args ignored:\n%v\n", BoldPurple, Reset, cmd.args)
 		}
-		return listSections(sections), nil
+		return listSections(sections), err
 	case "lsub":
 		fallthrough
 	case "listsubsections":

@@ -190,7 +190,7 @@ func TestExecuteCommand(t *testing.T) {
 			errContains: "no subsection name provided",
 		},
 		{
-			name:        "tax invalid section",
+			name:        "tax invalid section with subsection",
 			args:        []string{"gosyn", "Invalid", "Sub"},
 			wantErr:     true,
 			errContains: "section \"Invalid\" not found",
@@ -198,10 +198,10 @@ func TestExecuteCommand(t *testing.T) {
 
 		// Edge cases
 		{
-			name:        "unknown command",
+			name:        "unknown section or command",
 			args:        []string{"gosyn", "unknown"},
 			wantErr:     true,
-			errContains: "no subsection name provided",
+			errContains: "section \"unknown\" not found",
 		},
 		{
 			name:        "empty command",

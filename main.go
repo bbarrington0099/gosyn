@@ -107,13 +107,7 @@ func executeCommand() (string, error) {
 			fmt.Printf("%sWARNING%s executeCommand(): too many arguments provided for listSubsections command, following Args ignored:\n%v\n", BoldPurple, Reset, cmd.args[1:])
 		}
 		return listSubsections(sections, cmd.args[0])
-	default:
-		// Default represents if there is no "action" just a section and subsection arg (the section being the cmd.action)
-		// This is the default funcitonality of the program
-		if cmd.args[0] == "" {
-			err = fmt.Errorf("%sERROR%s executeCommand(): no subsection name provided for tax <sectionName> <subsectionName> in args \"%v\"", BoldRed, Reset, os.Args[1:])
-			return "", err
-		}
+	default:		
 		return tax(sections, cmd.action, cmd.args[0])
 	}
 }
@@ -182,6 +176,10 @@ func tax(sections []section, sectionName string, subsectionName string) (string,
 	var err error = nil
 	for _, sec := range sections {
 		if strings.EqualFold(sec.name, sectionName) || strings.EqualFold(sec.short, sectionName) {
+			if subsectionName == "" {
+				err = fmt.Errorf("%sERROR%s executeCommand(): no subsection name provided for tax <sectionName> <subsectionName> in args \"%v\"", BoldRed, Reset, os.Args[1:])
+				return "", err
+			}
 			for _, sub := range sec.subsections {
 				if strings.EqualFold(sub.name, subsectionName) {
 					return fmt.Sprintf("%sSyntax information%s for %s%s%s in %s%s%s:\n%s\n", 
@@ -195,7 +193,7 @@ func tax(sections []section, sectionName string, subsectionName string) (string,
 			return "", err
 		}
 	}
-	err = fmt.Errorf("%sERROR%s tax(): section \"%s\" not found", BoldRed, Reset, sectionName)
+	err = fmt.Errorf("%sERROR%s tax(): no command found assuming section - section \"%s\" not found", BoldRed, Reset, sectionName)
 	return "", err
 }
 
